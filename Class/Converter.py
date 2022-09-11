@@ -30,8 +30,8 @@ class Converter:
                          f"{s.config['Project']}/"
                          f"{s.config['Project']}_{v}.mov")
 
-        p = multiprocessing.Pool(multiprocessing.cpu_count())
-        # p = multiprocessing.Pool(1)
+        # p = multiprocessing.Pool(multiprocessing.cpu_count())
+        p = multiprocessing.Pool(6)
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
@@ -56,6 +56,7 @@ class Converter:
                 os.remove(input)
                 self.RenderVideo(input)
 
+    # Method return font file for subtitles
     def switch(self, lang):
         fontPath = settings.BASEDIR + "fonts"
         if file_exists(fontPath + "/" + lang + ".ttf"):
