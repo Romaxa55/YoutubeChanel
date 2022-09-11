@@ -1,5 +1,5 @@
 import ast
-import json
+from os.path import exists as file_exists
 import multiprocessing
 import pickle
 import time
@@ -28,20 +28,30 @@ class Converter:
             names.append(f"{s.MEDIA_DIR}"
                          f"{s.config['Project']}/"
                          f"{s.config['Project']}_{v}.mov")
-        p = multiprocessing.Pool(1)
+        p = multiprocessing.Pool(multiprocessing.cpu_count())
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
     def RenderVideo(self, input):
         # Работаем с оригинальным файлом
-        clip = self.AddSub(input)
-        clip.write_videofile(
-            input,
-            fps=clip.fps,
-            remove_temp=True,
-            codec="libx264",
-            audio_codec="aac"
-        )
+        if not file_exists(input):
+            print(f"{input} not exist")
+            clip = self.AddSub(input)
+            clip.write_videofile(
+                input,
+                fps=clip.fps,
+                remove_temp=True,
+                codec="libx264",
+                audio_codec="aac"
+            )
+        else:
+            clipOriginal = VideoFileClip(self.originalVideoFile).duration
+            clipSource = VideoFileClip(input).duration
+            if int(clipOriginal) == int(clipSource):
+                print("+ [GOOD] " + input)
+            else:
+                os.remove(input)
+                self.RenderVideo(input)
 
     def AddSub(self, input):
         input = input.rsplit(".", 1)[0]
@@ -54,7 +64,7 @@ class Converter:
         logo = (ImageClip(logoPath)
                 .set_duration(clip.duration)
                 .resize(height=70)  # if you need to resize...
-                .margin(left=20, top=20, opacity=0.7)  # (optional) logo-border padding
+                .margin(left=20, top=20, opacity=0)  # (optional) logo-border padding
                 .set_pos(("left", "top")))
 
         # Add Subscribe watermark
@@ -62,7 +72,7 @@ class Converter:
         watermark = (VideoFileClip(watermarkPath, has_mask=True)
                      .set_duration(12.47)
                      .resize(height=600)
-                     .margin(right=8, top=8, opacity=0.3)
+                     .margin(right=8, top=8, opacity=0)
                      .set_pos(('right', 'bottom')))
 
         # Add Subs
@@ -77,7 +87,7 @@ class Converter:
         # Return result merge original + subtitles + watermark + logo
         return CompositeVideoClip([
             clip,
-            subtitles.set_position(('center', 'bottom')).margin(bottom=20),
+            subtitles.set_position(('center', 'bottom')).margin(bottom=20, opacity=0),
             watermark.set_start(t=clip.duration - 12.47 - 15),
             watermark.set_start(t=clip.duration*0.5),
             logo
