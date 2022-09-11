@@ -186,17 +186,17 @@ def main():
     # Create Video with sub, logo, watermark
     # # Init here, need clip.duration object
     clip = VideoFileClip(Video_file)
+    start_time = 5
     subs = [
-        (((clip.duration * 0.1), (clip.duration * 0.1) + 2), 'Привет'),
-        ((((clip.duration * 0.1) + 3), (clip.duration * 0.1) + 4), 'Приятного просмотра!!!'),
-        ((((clip.duration * 0.1) + 3), (clip.duration * 0.1) + 4), 'пишем картину'),
-        ((((clip.duration * 0.1) + 5), (clip.duration * 0.1) + 7), settings.config['WhoOnCanvas']),
-        ((((clip.duration * 0.1) + 7), (clip.duration * 0.1) + 9), settings.config['TitleCanvas']),
-        ((((clip.duration * 0.1) + 9), (clip.duration * 0.1) + 13), '‿︵‿ヽ(°□° )ノ︵‿︵'),
+        ((start_time, start_time + 2), 'Привет'),
+        ((start_time + 2, start_time + 4), 'Приятного просмотра!!!'),
+        ((start_time + 4, start_time + 6), 'пишем картину'),
+        ((start_time + 6, start_time + 9), settings.config['WhoOnCanvas']),
+        ((start_time + 9, start_time + 11), settings.config['TitleCanvas']),
+        ((start_time + 11, start_time + 12), '‿︵‿ヽ(°□° )ノ︵‿︵'),
         (((clip.duration * 0.8), (clip.duration * 0.8) + 2), 'пожалуйста '),
         ((((clip.duration * 0.8) + 2), (clip.duration * 0.8) + 4), 'подпишись на канал'),
-        ((clip.duration * 0.97 - 2, clip.duration * 0.97), 'Спасибо за просмотр!!!'),
-        ((clip.duration * 0.97, clip.duration), '(o˘◡˘o)-> на забудь подписаться')
+        ((clip.duration * 0.97 - 3, clip.duration * 0.97), '(o˘◡˘o)-> Спасибо за просмотр!!!')
     ]
     # Create Subs
     t = Translate(Lang_file, Video_file)

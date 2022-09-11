@@ -28,7 +28,9 @@ class Converter:
             names.append(f"{s.MEDIA_DIR}"
                          f"{s.config['Project']}/"
                          f"{s.config['Project']}_{v}.mov")
-        p = multiprocessing.Pool(multiprocessing.cpu_count())
+
+        # p = multiprocessing.Pool(multiprocessing.cpu_count())
+        p = multiprocessing.Pool(1)
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
@@ -76,7 +78,7 @@ class Converter:
                      .set_pos(('right', 'bottom')))
 
         # Add Subs
-        generator = lambda txt: TextClip(txt, font='Arial', fontsize=70, color='white')
+        generator = lambda txt: TextClip(txt, font=settings.BASEDIR + "Gifs/font.ttf", fontsize=70, color='white')
         file = f"{input}.bin"
 
         # Read subs from dump file
