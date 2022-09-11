@@ -1,0 +1,6 @@
+/venv/
+*.bin
+*.mov
+/user_token.json
+/YOUR_CLIENT_SECRET_FILE.json
+/Gifs/
