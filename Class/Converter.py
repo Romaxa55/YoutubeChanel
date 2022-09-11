@@ -1,6 +1,7 @@
 import ast
 import json
 import multiprocessing
+import pickle
 import time
 import moviepy.editor as mp
 from moviepy.video.VideoClip import TextClip
@@ -32,9 +33,10 @@ class Converter:
         input = input.rsplit(".", 1)[0]
 
         file = f"{input}.txt"
-        with open(file, 'r') as fp:
-            data = json.load(fp)
-        print(data)
+        with open(file, 'rb') as f:
+            data = pickle.load(f)
+            print(data)
+
 
     def RenderVideo(self, input):
         self.AddSub(input)
