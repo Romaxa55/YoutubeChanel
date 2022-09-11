@@ -201,9 +201,9 @@ def main():
     # Create Subs
     t = Translate(Lang_file, Video_file)
     t.translateSub(subs)
-    # # Create Video
-    # c = Converter()
-    # c.createVideo()
+    # Create Video
+    c = Converter()
+    c.createVideo()
 
     # Create sub and translate other language
     # sub = createSub(subs)

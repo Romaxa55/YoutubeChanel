@@ -3,47 +3,85 @@ import json
 import multiprocessing
 import pickle
 import time
-import moviepy.editor as mp
-from moviepy.video.VideoClip import TextClip
+from moviepy.editor import *
+from moviepy.video.tools.subtitles import SubtitlesClip
+
 import settings
 
 
 class Converter:
     lang = None
-    filename = None
+    originalVideoFile: str = None
 
     def __init__(self):
         self.start_time = time.time()
         self.Lang_file = settings.lang_file
+        self.originalVideoFile = settings.global_params['Video_file'][0]
         with open(self.Lang_file) as f:
             self.lang = ast.literal_eval(f.read())
 
+    # Формируем список видео для каждой страны свое
     def createVideo(self):
         names = []
         s = settings
-        print(s.config['TitleCanvas'])
         for k, v in self.lang.items():
             names.append(f"{s.MEDIA_DIR}"
                          f"{s.config['Project']}/"
                          f"{s.config['Project']}_{v}.mov")
-        p = multiprocessing.Pool()
+        p = multiprocessing.Pool(1)
+        # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
+
+    def RenderVideo(self, input):
+        # Работаем с оригинальным файлом
+        clip = self.AddSub(input)
+        clip.write_videofile(
+            input,
+            fps=clip.fps,
+            remove_temp=True,
+            codec="libx264",
+            audio_codec="aac"
+        )
 
     def AddSub(self, input):
         input = input.rsplit(".", 1)[0]
 
-        file = f"{input}.txt"
+        # Read original video
+        clip = VideoFileClip(self.originalVideoFile)
+
+        # Add logo
+        logoPath = f"{settings.BASEDIR}Gifs/logo.png"
+        logo = (ImageClip(logoPath)
+                .set_duration(clip.duration)
+                .resize(height=70)  # if you need to resize...
+                .margin(left=20, top=20, opacity=0.7)  # (optional) logo-border padding
+                .set_pos(("left", "top")))
+
+        # Add Subscribe watermark
+        watermarkPath = f"{settings.BASEDIR}Gifs/Yotube hello.mov"
+        watermark = (VideoFileClip(watermarkPath, has_mask=True)
+                     .set_duration(12.47)
+                     .resize(height=600)
+                     .margin(right=8, top=8, opacity=0.3)
+                     .set_pos(('right', 'bottom')))
+
+        # Add Subs
+        generator = lambda txt: TextClip(txt, font='Arial', fontsize=70, color='white')
+        file = f"{input}.bin"
+
+        # Read subs from dump file
         with open(file, 'rb') as f:
-            data = pickle.load(f)
-            print(data)
+            sub = pickle.load(f)
+        subtitles = SubtitlesClip(sub, generator)
 
-
-    def RenderVideo(self, input):
-        self.AddSub(input)
-        # clip = mp.VideoFileClip(input).subclip(0, 20)
-        # clip.write_videofile(input)
-        return input
+        # Return result merge original + subtitles + watermark + logo
+        return CompositeVideoClip([
+            clip,
+            subtitles.set_position(('center', 'bottom')).margin(bottom=20),
+            watermark.set_start(t=clip.duration - 12.47 - 15),
+            watermark.set_start(t=clip.duration*0.5),
+            logo
+        ])
 
     def __del__(self):
         print(time.time() - self.start_time)
-
