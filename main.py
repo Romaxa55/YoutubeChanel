@@ -182,11 +182,6 @@ def main():
     # tags for video
 
 
-    # ToDo Добавить автора и название картины в переменную
-    canvas = {"title": "Терминатор", "who": "Арнольд Шварценеггер"}
-    # Update video manifest< add translate, tags, etc...
-    # update_video_info(id, translate(get_video_info(id)),tags)
-
     ########################################################################
     # Create Video with sub, logo, watermark
     # # Init here, need clip.duration object
