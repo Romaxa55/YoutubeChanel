@@ -12,6 +12,7 @@ import settings
 class Converter:
     lang = None
     originalVideoFile: str = None
+    langNow : str = None
 
     def __init__(self):
         self.start_time = time.time()
@@ -29,8 +30,8 @@ class Converter:
                          f"{s.config['Project']}/"
                          f"{s.config['Project']}_{v}.mov")
 
-        # p = multiprocessing.Pool(multiprocessing.cpu_count())
-        p = multiprocessing.Pool(1)
+        p = multiprocessing.Pool(multiprocessing.cpu_count())
+        # p = multiprocessing.Pool(1)
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
@@ -55,8 +56,17 @@ class Converter:
                 os.remove(input)
                 self.RenderVideo(input)
 
+    def switch(self, lang):
+        fontPath = settings.BASEDIR + "fonts"
+        if file_exists(fontPath + "/" + lang + ".ttf"):
+            return fontPath + "/" + lang + ".ttf"
+        else:
+            return fontPath + "/DefaultFont.ttf",
+
     def AddSub(self, input):
         input = input.rsplit(".", 1)[0]
+        langNow = input
+        langNow = langNow.split("_", 1)[1]
 
         # Read original video
         clip = VideoFileClip(self.originalVideoFile)
@@ -78,7 +88,14 @@ class Converter:
                      .set_pos(('right', 'bottom')))
 
         # Add Subs
-        generator = lambda txt: TextClip(txt, font=settings.BASEDIR + "Gifs/font.ttf", fontsize=70, color='white')
+        font = self.switch(langNow)
+        print(f"Use font {font} for lang {langNow}")
+        generator = lambda txt: TextClip(
+            txt,
+            font=font,
+            fontsize=70,
+            color='white'
+        )
         file = f"{input}.bin"
 
         # Read subs from dump file
@@ -91,7 +108,7 @@ class Converter:
             clip,
             subtitles.set_position(('center', 'bottom')).margin(bottom=20, opacity=0),
             watermark.set_start(t=clip.duration - 12.47 - 15),
-            watermark.set_start(t=clip.duration*0.5),
+            watermark.set_start(t=clip.duration * 0.5),
             logo
         ])
 
