@@ -31,7 +31,7 @@ class Converter:
                          f"{s.config['Project']}_{v}.mov")
 
         # p = multiprocessing.Pool(multiprocessing.cpu_count())
-        p = multiprocessing.Pool(1)
+        p = multiprocessing.Pool(3)
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
@@ -62,7 +62,7 @@ class Converter:
         if file_exists(fontPath + "/" + lang + ".ttf"):
             return fontPath + "/" + lang + ".ttf"
         else:
-            return "Arial",
+            return "Times-New-Roman"
 
     def AddSub(self, input):
         input = input.rsplit(".", 1)[0]
