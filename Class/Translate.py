@@ -22,7 +22,7 @@ class Translate:
         self.filename = filename.rsplit(".", 1)[0]
 
     def __del__(self):
-        print(time.time() - self.start_time)
+        print(self.__class__.__name__ + ": " + time.time() - self.start_time)
 
     def getList(self):  # getList method
         with open(self.langFile) as f:

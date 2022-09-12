@@ -33,18 +33,11 @@ APP_TOKEN_FILE = "YOUR_CLIENT_SECRET_FILE.json"
 USER_TOKEN_FILE = "user_token.json"
 
 
-def pretty(d, indent=0):
-    for key, value in d.items():
-        print('\t' * indent + str(key))
-        if isinstance(value, dict):
-            pretty(value, indent + 1)
-        else:
-            print('\t' * (indent + 1) + str(value))
 
 
 def get_creds_cons():
     flow = InstalledAppFlow.from_client_secrets_file(APP_TOKEN_FILE, SCOPES)
-    return flow.run_console()
+    return flow.run_local_server()
 
 
 def get_creds_saved():
@@ -128,43 +121,6 @@ def translate(d):
         print(f"Язык {k}")
         print({"title": title, "description": description})
     return result
-
-
-def converter(clip, filename, sub, lang):
-    # clip = clip.subclip(0, 30)
-    print(f"clip = {clip}")
-    print(f"filename = {filename}")
-    print(f"sub = {sub}")
-    print(f"lang = {lang}")
-    # Text for Subtitles
-    gen = lambda txt: TextClip(txt, font='Arial', fontsize=70, color='white')
-    # Init Subtitles
-    subtitles = SubtitlesClip(sub, gen)
-    # Create Subtitles
-    clip = CompositeVideoClip([clip, subtitles.set_pos(('center', 'bottom'))])
-    # init video Subcribe duration
-    water_duration = 12.47
-    # Create Subcribe
-    watermark = (VideoFileClip("./Gifs/Yotube hello.mov", has_mask=True)
-                 .set_duration(water_duration)
-                 .resize(height=600)
-                 .margin(right=8, top=8, opacity=0.3)
-                 .set_pos(('right', 'bottom')))
-    # Create Subcribe to end video 15 sec + 12.47 = 27 sec
-    clip = CompositeVideoClip([clip, watermark.set_start(t=clip.duration - water_duration + 15)])  # set_start(t=5)
-    # Create Subcribe to begin video from 30% video
-    # clip = CompositeVideoClip([clip, watermark.set_start(t=clip.duration*0.3)]) #set_start(t=5)
-    # Add Logo
-    logo = (ImageClip("./Gifs/logo.png")
-            .set_duration(clip.duration)
-            .resize(height=150)  # if you need to resize...
-            .margin(left=20, top=20, opacity=0)  # (optional) logo-border padding
-            .set_pos(("left", "top")))
-    # Create Logo
-    # clip = CompositeVideoClip([clip, logo]) #set_start(t=5)
-    # Build
-    clip.write_videofile(f"./Video/{lang}_{filename}", fps=clip.fps,
-                         codec="libx264", threads=12)
 
 
 def main():

@@ -6,3 +6,4 @@ googletrans~=3.0.0
 moviepy==1.0.3
 pyzmq
 numpy==1.23.2
+PyYAML==6.0

@@ -114,4 +114,4 @@ class Converter:
         ])
 
     def __del__(self):
-        print(time.time() - self.start_time)
+        print(self.__class__.__name__ + ": " + time.time() - self.start_time)
