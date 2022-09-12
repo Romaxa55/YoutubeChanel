@@ -30,8 +30,8 @@ class Converter:
                          f"{s.config['Project']}/"
                          f"{s.config['Project']}_{v}.mov")
 
-        # p = multiprocessing.Pool(multiprocessing.cpu_count())
-        p = multiprocessing.Pool(3)
+        p = multiprocessing.Pool(multiprocessing.cpu_count())
+        # p = multiprocessing.Pool(3)
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
