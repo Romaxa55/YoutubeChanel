@@ -12,10 +12,11 @@ import settings
 class Converter:
     lang = None
     originalVideoFile: str = None
-    langNow : str = None
+    langNow: str = None
 
     def __init__(self):
         self.start_time = time.time()
+        print(f"{self.__class__} STARTED")
         self.Lang_file = settings.lang_file
         self.originalVideoFile = settings.global_params['Video_file'][0]
         with open(self.Lang_file) as f:
@@ -114,4 +115,5 @@ class Converter:
         ])
 
     def __del__(self):
-        print(self.__class__.__name__ + ": " + time.time() - self.start_time)
+        print(f"{self.__class__} FINISHED")
+        print(time.time() - self.start_time)

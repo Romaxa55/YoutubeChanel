@@ -13,8 +13,8 @@ import time
 class Youtube(Auth):
     def __init__(self):
         self.start_time = time.time()
-
-
+        print(f"{self.__class__} STARTED")
 
     def __del__(self):
-        print(self.__class__.__name__ + ": " + time.time() - self.start_time)
+        print(f"{self.__class__} FINISHED")
+        print(time.time() - self.start_time)
