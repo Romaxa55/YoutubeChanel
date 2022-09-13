@@ -11,24 +11,20 @@ import time
 
 
 class Auth:
-    APP_TOKEN_FILE = "YOUR_CLIENT_SECRET_FILE.json"
-    USER_TOKEN_FILE = "user_token.json"
-
-    SCOPES = [
-        'https://www.googleapis.com/auth/youtube.force-ssl',
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/youtube.upload',
-        'https://www.googleapis.com/auth/userinfo.email'
-    ]
+    APP_TOKEN_FILE = f"{settings.BASEDIR}{settings.APP_TOKEN_FILE}"
+    USER_TOKEN_FILE = f"{settings.BASEDIR}{settings.USER_TOKEN_FILE}"
+    SCOPES = settings.SCOPES
 
     def __init__(self):
         self.start_time = time.time()
+        print(f"{self.__class__} STARTED")
 
     def get_creds_cons(self):
-        return InstalledAppFlow.from_client_secrets_file(
+        flow = InstalledAppFlow.from_client_secrets_file(
             self.APP_TOKEN_FILE,
             self.SCOPES
         )
+        return flow.run_console()
 
     def get_creds_saved(self):
         creds = None
@@ -49,13 +45,24 @@ class Auth:
                 creds = flow.run_local_server(port=0)
             with open(self.USER_TOKEN_FILE, 'w') as token:
                 token.write(creds.to_json())
-            return creds
 
-    def auth(self):
+        return creds
+
+    def youtube(self):
         credentials = self.get_creds_saved()
         service = googleapiclient.discovery.build(
             "youtube", "v3", credentials=credentials)
         return service
 
+    def get_video_info(self, id, part='snippet'):
+        request = self.youtube().videos().list(
+            part=part,
+            id=id
+        )
+        response = request.execute()
+        return response
+
     def __del__(self):
-        print(self.__class__.__name__ + ": " + time.time() - self.start_time)
+        print(f"{self.__class__} FINISHED")
+        print(time.time() - self.start_time)
+

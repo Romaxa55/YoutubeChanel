@@ -22,6 +22,8 @@ import queue  # imported for using queue.Empty exception
 from multiprocessing import Lock, Process, Queue, current_process
 from Class.Translate import *
 from Class.Converter import *
+from Class.Auth import *
+
 
 SCOPES = [
     'https://www.googleapis.com/auth/youtube.force-ssl',
@@ -37,7 +39,7 @@ USER_TOKEN_FILE = "user_token.json"
 
 def get_creds_cons():
     flow = InstalledAppFlow.from_client_secrets_file(APP_TOKEN_FILE, SCOPES)
-    return flow.run_local_server()
+    return flow.run_console()
 
 
 def get_creds_saved():
@@ -136,8 +138,9 @@ def main():
     # id Video on youtube
     id = 'FWnJKjmgXf8'
     # tags for video
-
-
+    # print(get_video_info(id))
+    y = Auth()
+    print(y.get_video_info(id))
     ########################################################################
     # Create Video with sub, logo, watermark
     # # Init here, need clip.duration object
@@ -154,12 +157,19 @@ def main():
         ((((clip.duration * 0.8) + 2), (clip.duration * 0.8) + 4), 'подпишись на канал'),
         ((clip.duration * 0.97 - 3, clip.duration * 0.97), '(o˘◡˘o)-> Спасибо за просмотр!!!')
     ]
-    # Create Subs
-    t = Translate(Lang_file, Video_file)
-    t.translateSub(subs)
-    # Create Video
-    c = Converter()
-    c.createVideo()
+    # # Stage Create Subs
+    # t = Translate(Lang_file, Video_file)
+    # t.translateSub(subs)
+    #
+    # # Stage Create Video
+    # c = Converter()
+    # c.createVideo()
+
+    # Stage Auth Youtube
+    # y = Auth()
+    # y.getPlaylists()
+    # youtube()
+
 
     # Create sub and translate other language
     # sub = createSub(subs)

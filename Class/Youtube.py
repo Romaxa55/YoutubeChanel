@@ -1,19 +1,20 @@
-import Auth
-
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-import googleapiclient
-from googleapiclient.discovery import build
-
-import settings
+import Class.Auth
 import time
 
 
-class Youtube(Auth):
+class Youtube(Class.Auth.Auth):
+
     def __init__(self):
         self.start_time = time.time()
         print(f"{self.__class__} STARTED")
+
+    def getPlaylists(self):
+        request = self.youtube().playlists().list(
+            part="snippet,contentDetails",
+            maxResults=25,
+            mine=True
+        )
+        return request.execute()
 
     def __del__(self):
         print(f"{self.__class__} FINISHED")

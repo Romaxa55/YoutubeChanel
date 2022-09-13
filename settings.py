@@ -20,6 +20,19 @@ lang_file: str = "config/locale.list"
 # Config file config
 Config_file: str = "Video/Terminator/config.yaml"
 # Original video file name in folder ./Video/
+
+# Files with tokens for YouTube
+APP_TOKEN_FILE = "YOUR_CLIENT_SECRET_FILE.json"
+USER_TOKEN_FILE = "user_token.json"
+
+# Youtube scopes
+SCOPES = [
+    'https://www.googleapis.com/auth/youtube.force-ssl',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    # 'https://www.googleapis.com/auth/youtube.upload',
+    # 'https://www.googleapis.com/auth/userinfo.email'
+]
+
 try:
     os.chdir(BASEDIR)
     error = False
@@ -28,7 +41,7 @@ try:
 
     global_vars = {
         "lang_file": {"name": lang_file, "Path": BASEDIR},
-        "Video_file": {"name": config['Video_file'], "Path": MEDIA_DIR+config['Project']+"/"}
+        "Video_file": {"name": config['Video_file'], "Path": MEDIA_DIR + config['Project'] + "/"}
     }
     global_params = defaultdict(list)
 
