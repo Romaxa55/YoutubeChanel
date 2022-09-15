@@ -54,14 +54,6 @@ class Auth:
             "youtube", "v3", credentials=credentials)
         return service
 
-    def get_video_info(self, id, part='snippet'):
-        request = self.youtube().videos().list(
-            part=part,
-            id=id
-        )
-        response = request.execute()
-        return response
-
     def __del__(self):
         print(f"{self.__class__} FINISHED")
         print(time.time() - self.start_time)
