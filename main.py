@@ -131,6 +131,7 @@ def main():
                 "privacyStatus": "public"
             }
         }
+        print(args)
         y.createPlaylists(args)
         time.sleep(2)
 
