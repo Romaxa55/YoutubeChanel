@@ -1,12 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Sample Python code forR youtube.channels.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/code-samples#python
-import pprint
-import json
-import settings
-
+import re
 from Class.Translate import *
 from Class.Converter import *
 from Class.Youtube import *
@@ -113,12 +105,34 @@ def main():
 
     # Stage Auth YouTube
     y = Youtube()
+
+    # Delete Playlists
     whitelist = ['Art Works']
-    while y.deletePlaylist(whitelist):
-        pass
+    # whitelist = y.CreateWhiteList(whitelist)
+    # while y.deletePlaylist(whitelist):
+    #     pass
 
-    # y.createPlaylists(range(1, 70))
+    whitelist = []
+    whitelist = y.CreateWhiteList(whitelist)
+    for i in whitelist:
+        lang = re.findall('\((\w{1,3}|\w\w-\w\w)\)',
+                          i)
+        if not lang:
+            lang = ['ru']
 
+        snippet = {
+            'title': i,
+            'description': "",
+            'defaultLanguage': lang[0]
+        }
+        args = {
+            "snippet": snippet,
+            "status": {
+                "privacyStatus": "public"
+            }
+        }
+        y.createPlaylists(args)
+        time.sleep(2)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,15 @@
 import Class.Auth
 import time
 import multiprocessing as mp
+import settings
+import ast
 
 
 class Youtube(Class.Auth.Auth):
 
     def __init__(self):
+        self.lang = None
+        self.Lang_file = None
         self.start_time = time.time()
         print(f"{self.__class__} STARTED")
 
@@ -27,24 +31,12 @@ class Youtube(Class.Auth.Auth):
         response = request.execute()
         return response
 
-    def createPlaylists(self, idList):
-        status = self.MultiProcessStart(
-            self.createPlaylistsMP,
-            idList
-        )
-        return status
-
-    def createPlaylistsMP(self, args):
-        snippet = {"defaultLanguage": "ru",
-                   "title": str(args),
-                   "description": f"321"
-                   }
+    def createPlaylists(self, args):
         request = self.youtube().playlists().insert(
-            part="snippet,contentDetails",
-            body={
-                "snippet": snippet
-            }
+            part="snippet,status",
+            body=args
         )
+        print(args)
         request.execute()
         return request
 
@@ -53,18 +45,19 @@ class Youtube(Class.Auth.Auth):
         num = len(args)
         if num != 0:
             for i in args:
-                p = mp.Process(target=method,args=(i,))
+                p = mp.Process(target=method, args=(i,))
                 p.start()
                 # Ограничу в 5 потоков в секунду
-                if num % 5 == 0:
+                if num % 2 == 0:
                     p.join()
                     time.sleep(1)
                 num += 1
-            time.sleep(1)
+            time.sleep(2)
             p.join()
         else:
             return False
         return True
+
     # multiprocessing Delete method
     def deletePlaylist(self, whitelist):
         blacklist = []
@@ -82,6 +75,16 @@ class Youtube(Class.Auth.Auth):
         )
         response = request.execute()
         return response
+
+    def CreateWhiteList(self, args):
+        self.Lang_file = settings.lang_file
+        print(self.Lang_file)
+        with open(self.Lang_file) as f:
+            self.lang = ast.literal_eval(f.read())
+        for k, v in self.lang.items():
+            args.append(f"My Works. {k.title()} language ({v})")
+        return args
+
 
     def __del__(self):
         print(f"{self.__class__} FINISHED")
