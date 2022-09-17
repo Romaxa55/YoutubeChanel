@@ -111,6 +111,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         # tested
         # self.lang = {'georgian': 'ka'}
         for k, v in self.lang.items():
+            skip = False
             file = f"{settings.BASEDIR}Video/{project}/" \
                    f"{project}_{v}.mov"
             image = f"{settings.BASEDIR}Video/{project}/" \
@@ -131,7 +132,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                     if file in status:
                         print(f"File is {file} exist in {status} ")
                         print("SKIP STAGE")
-                        return False
+                        skip = True
                 else:
                     status = []
 
@@ -146,7 +147,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                                     tags=title.split(","),
                                     title=title,
                                     description=description),
-                    "status": dict(privacyStatus="public",
+                    "status": dict(privacyStatus="private",
                                    license="youtube",
                                    embeddable=True,
                                    publicStatsViewable=True,
@@ -160,12 +161,13 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                     body=meta,
                     media_body=self.upload(file)
                 )
-                r = self.ResumableUpload(insert_request)
-                print(r)
-                if 'id' in r:
-                    status.append(file)
-                    with open(status_file, 'w') as outfile:
-                        yaml.dump(status, outfile, default_flow_style=False, allow_unicode=True)
+                if not skip:
+                    r = self.ResumableUpload(insert_request)
+                    print(r)
+                    if 'id' in r:
+                        status.append(file)
+                        with open(status_file, 'w') as outfile:
+                            yaml.dump(status, outfile, default_flow_style=False, allow_unicode=True)
 
     def SetThumbnails(self, idVideo, image):
         print(idVideo)
