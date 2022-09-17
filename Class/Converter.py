@@ -3,14 +3,16 @@ from os.path import exists as file_exists
 import multiprocessing
 import pickle
 import time
+from random import randrange
+
 from moviepy.editor import *
 from moviepy.video.tools.subtitles import SubtitlesClip
-import numpy as np
 
+import Class.Translate
 import settings
 
 
-class Converter:
+class Converter(Class.Translate.Translate):
     lang = None
     originalVideoFile: str = None
     langNow: str = None
@@ -37,6 +39,46 @@ class Converter:
         # Мультипоточность вызывам RenderVideo
         p.map(self.RenderVideo, names)
 
+    def CreateThumbnails(self, input):
+        langNow = input
+        langNow = langNow.rsplit(".", 1)[0]
+        langNow = langNow.split("_", 1)[1]
+        thumbnail = input
+        thumbnail = thumbnail.rsplit(".", 1)[0] + ".png"
+
+
+        if not file_exists(thumbnail):
+            # Use only original for thumbnail
+            title = self.translate(settings.config['ThumbnailTitle'], langNow)
+            font = self.switch(langNow)
+            clip = VideoFileClip(self.originalVideoFile)
+            clip.save_frame(thumbnail, t=randrange(int(clip.duration)))
+            image_clip = ImageClip(thumbnail)
+            text_clip = TextClip(txt="\n".join(title.split()).upper(),
+                                 size=(0.85 * image_clip.size[0], 0),
+                                 font=font,
+                                 color="white")
+            text_clip = text_clip.set_position('center')
+            im_width, im_height = text_clip.size
+            color_clip = ColorClip(size=(int(im_width * 1.1), int(im_height * 1.3)),
+                                   color=(0, 255, 255))
+            color_clip = color_clip.set_opacity(.6)
+            clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
+            clip_to_overlay = clip_to_overlay.set_position('bottom')
+            final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
+            final_clip.save_frame(thumbnail)
+
+            #
+            # font = self.switch(langNow)
+            # print(f"Use font {font} for lang {langNow}")
+            #
+            # text_clip = TextClip(txt=title,
+            #                      fontsize=70,
+            #                      font=font,
+            #                      color="white",  # Font color
+            #                      bg_color="aqua")  # Background color
+            # text_clip.save_frame(thumbnail)
+
     def RenderVideo(self, input):
         # Работаем с оригинальным файлом
         if not file_exists(input):
@@ -54,9 +96,11 @@ class Converter:
             clipSource = VideoFileClip(input).duration
             if int(clipOriginal) == int(clipSource):
                 print("+ [GOOD] " + input)
+                self.CreateThumbnails(input)
             else:
                 os.remove(input)
                 self.RenderVideo(input)
+                self.CreateThumbnails(input)
 
     # Method return font file for subtitles
     def switch(self, lang):

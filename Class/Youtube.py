@@ -108,7 +108,8 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         with open(self.Lang_file) as f:
             self.lang = ast.literal_eval(f.read())
         project = settings.config['Project']
-
+        #tested
+        self.lang = {'georgian': 'ka'}
         for k, v in self.lang.items():
             file = f"{settings.BASEDIR}Video/{project}/" \
                    f"{project}_{v}.mov"
@@ -141,7 +142,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 )
 
                 r = self.ResumableUpload(insert_request)
-                print(r)
+                return r
 
     def __del__(self):
         print(f"{self.__class__} FINISHED")
