@@ -101,7 +101,7 @@ def main():
     # Stage Auth YouTube
     y = Youtube()
 
-    y.getPlaylists()
+    # y.getPlaylists()
     # upload video on youtube
     y.YoutubeVideoUpload()
 

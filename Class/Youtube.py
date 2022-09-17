@@ -5,6 +5,7 @@ import multiprocessing as mp
 import settings
 import ast
 import os.path
+import yaml
 
 
 class Youtube(Class.Auth.Auth, Class.Translate.Translate):
@@ -94,7 +95,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 if response is None: continue
                 if 'id' not in response: raise Exception("no id found while video uploading")
 
-                return response['id']  # success
+                return response  # success
             except Exception as e:
                 print(e)
                 retries -= 1
@@ -108,7 +109,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
             self.lang = ast.literal_eval(f.read())
         project = settings.config['Project']
         # tested
-        self.lang = {'georgian': 'ka'}
+        # self.lang = {'georgian': 'ka'}
         for k, v in self.lang.items():
             file = f"{settings.BASEDIR}Video/{project}/" \
                    f"{project}_{v}.mov"
@@ -116,15 +117,23 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                     f"{project}_{v}.png"
             file_exists = os.path.exists(file)
             if file_exists:
+                # Status Upload file create
                 status_file = f"{settings.BASEDIR}Video/{project}/" \
                               f"status.yaml"
-                file_exists = os.path.exists(status_file)
-                if file_exists:
-                    with open(status_file, 'r') as file:
-                        status = yaml.safe_load(file)
+                if not os.path.exists(status_file):
+                    with open(status_file, 'w'): pass
+
+                with open(status_file, 'r') as f:
+                    status = yaml.safe_load(f)
+
+                # Checked exist file
+                if status is not None:
+                    if file in status:
+                        print(f"File is {file} exist in {status} ")
+                        print("SKIP STAGE")
+                        return False
                 else:
-                    with open(status_file, mode='a'):
-                        pass
+                    status = []
 
                 # Init media file upload
                 title = self.translate(settings.config['Title'], v)
@@ -137,7 +146,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                                     tags=title.split(","),
                                     title=title,
                                     description=description),
-                    "status": dict(privacyStatus="private",
+                    "status": dict(privacyStatus="public",
                                    license="youtube",
                                    embeddable=True,
                                    publicStatsViewable=True,
@@ -151,12 +160,12 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                     body=meta,
                     media_body=self.upload(file)
                 )
-
-                # r = self.ResumableUpload(insert_request)
-                # if 'id' in r:
-                #     r = self.SetThumbnails(r['id'], image)
-                # r = self.SetThumbnails('xhujGJtvoBY', image)
-                return r
+                r = self.ResumableUpload(insert_request)
+                print(r)
+                if 'id' in r:
+                    status.append(file)
+                    with open(status_file, 'w') as outfile:
+                        yaml.dump(status, outfile, default_flow_style=False, allow_unicode=True)
 
     def SetThumbnails(self, idVideo, image):
         print(idVideo)
