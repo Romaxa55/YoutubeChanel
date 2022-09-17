@@ -44,6 +44,9 @@ class Translate:
                 print(d[v])
                 with open(file, 'wb') as f:
                     print(f"[OK] {file}.")
-                    pickle.dump(d[v],f)
+                    pickle.dump(d[v], f)
             else:
                 print(f"[OK] {file}.")
+
+    def translate(self, text, lang):
+        return GoogleTranslator(source='ru', target=lang).translate(text)

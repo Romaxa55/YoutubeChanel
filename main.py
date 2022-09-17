@@ -45,18 +45,18 @@ from Class.Youtube import *
 #     print(response)
 
 
-def translate(d):
-    with open('locale.list') as f:
-        data = f.read()
-    lang = ast.literal_eval(data)
-    result = {}
-    for k, v in lang.items():
-        title = GoogleTranslator(source='auto', target=v).translate(d['title']).strip('"«» „“')
-        description = GoogleTranslator(source='auto', target=v).translate(d['description']).strip('"«» „“')
-        result[v] = {"title": title, "description": description}
-        print(f"Язык {k}")
-        print({"title": title, "description": description})
-    return result
+# def translate(d):
+#     with open('locale.list') as f:
+#         data = f.read()
+#     lang = ast.literal_eval(data)
+#     result = {}
+#     for k, v in lang.items():
+#         title = GoogleTranslator(source='auto', target=v).translate(d['title']).strip('"«» „“')
+#         description = GoogleTranslator(source='auto', target=v).translate(d['description']).strip('"«» „“')
+#         result[v] = {"title": title, "description": description}
+#         print(f"Язык {k}")
+#         print({"title": title, "description": description})
+#     return result
 
 
 # Original sub
@@ -78,9 +78,6 @@ def sub():
 
 
 def main():
-    # Id Video
-    id = 'FWnJKjmgXf8'
-
     # File list langs translates
     Lang_file = settings.global_params['lang_file'][0]
 
@@ -90,12 +87,10 @@ def main():
     Tags = settings.config['tags']
 
     #######################
-    # Create Video with sub, logo, watermark
-
-    # Create original syb type tuple
+    # Create original sub type tuple
     subs = sub()
 
-    # # Stage Create Subs
+    # # Stage Create Subs GoogleTranslater
     # t = Translate(Lang_file, Video_file)
     # t.translateSub(subs)
     #
@@ -106,34 +101,43 @@ def main():
     # Stage Auth YouTube
     y = Youtube()
 
+    y.getPlaylists()
+    # upload video on youtube
+    y.YoutubeVideoUpload()
+
+
+
+
+
+    # Из за квот принято решение не использовать секцию
+
     # Delete Playlists
-    whitelist = ['Art Works']
+    # whitelist = ['Art Works']
     # whitelist = y.CreateWhiteList(whitelist)
     # while y.deletePlaylist(whitelist):
     #     pass
-
-    whitelist = []
-    whitelist = y.CreateWhiteList(whitelist)
-    for i in whitelist:
-        lang = re.findall('\((\w{1,3}|\w\w-\w\w)\)',
-                          i)
-        if not lang:
-            lang = ['ru']
-
-        snippet = {
-            'title': i,
-            'description': "",
-            'defaultLanguage': lang[0]
-        }
-        args = {
-            "snippet": snippet,
-            "status": {
-                "privacyStatus": "public"
-            }
-        }
-        print(args)
-        y.createPlaylists(args)
-        time.sleep(2)
+    # whitelist = []
+    # whitelist = y.CreateWhiteList(whitelist)
+    # for i in whitelist:
+    #     lang = re.findall('\((\w{1,3}|\w\w-\w\w)\)',
+    #                       i)
+    #     if not lang:
+    #         lang = ['ru']
+    #
+    #     snippet = {
+    #         'title': i,
+    #         'description': "",
+    #         'defaultLanguage': lang[0]
+    #     }
+    #     args = {
+    #         "snippet": snippet,
+    #         "status": {
+    #             "privacyStatus": "public"
+    #         }
+    #     }
+    #     print(args)
+    #     y.createPlaylists(args)
+    #     time.sleep(2)
 
 
 if __name__ == "__main__":

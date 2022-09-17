@@ -1,13 +1,14 @@
 import os
-
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-import googleapiclient
-from googleapiclient.discovery import build
-
-import settings
 import time
+
+import google_auth_oauthlib
+import googleapiclient
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+import settings
 
 
 class Auth:
@@ -18,6 +19,7 @@ class Auth:
     def __init__(self):
         self.start_time = time.time()
         print(f"{self.__class__} STARTED")
+        os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
     def get_creds_cons(self):
         flow = InstalledAppFlow.from_client_secrets_file(
@@ -38,7 +40,7 @@ class Auth:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
+                flow = google_auth_oauthlib.InstalledAppFlow.from_client_secrets_file(
                     self.APP_TOKEN_FILE,
                     self.SCOPES
                 )
@@ -54,7 +56,9 @@ class Auth:
             "youtube", "v3", credentials=credentials)
         return service
 
+    def upload(self, file):
+        return MediaFileUpload(file, chunksize=-1, resumable=True)
+
     def __del__(self):
         print(f"{self.__class__} FINISHED")
         print(time.time() - self.start_time)
-

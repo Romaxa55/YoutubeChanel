@@ -5,6 +5,7 @@ import pickle
 import time
 from moviepy.editor import *
 from moviepy.video.tools.subtitles import SubtitlesClip
+import numpy as np
 
 import settings
 
