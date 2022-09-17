@@ -94,7 +94,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 if response is None: continue
                 if 'id' not in response: raise Exception("no id found while video uploading")
 
-                return response  # success
+                return response['id']  # success
             except Exception as e:
                 print(e)
                 retries -= 1
@@ -116,6 +116,16 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                     f"{project}_{v}.png"
             file_exists = os.path.exists(file)
             if file_exists:
+                status_file = f"{settings.BASEDIR}Video/{project}/" \
+                              f"status.yaml"
+                file_exists = os.path.exists(status_file)
+                if file_exists:
+                    with open(status_file, 'r') as file:
+                        status = yaml.safe_load(file)
+                else:
+                    with open(status_file, mode='a'):
+                        pass
+
                 # Init media file upload
                 title = self.translate(settings.config['Title'], v)
                 description = self.translate(settings.config['Description'], v)
@@ -142,18 +152,22 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                     media_body=self.upload(file)
                 )
 
-                r = self.ResumableUpload(insert_request)
-                self.SetThumbnails(r['id'], image)
+                # r = self.ResumableUpload(insert_request)
+                # if 'id' in r:
+                #     r = self.SetThumbnails(r['id'], image)
+                # r = self.SetThumbnails('xhujGJtvoBY', image)
                 return r
 
     def SetThumbnails(self, idVideo, image):
+        print(idVideo)
+        print(image)
         youtube = self.youtube()
-        request = youtube.thumbnails().set(
+        insert_request = youtube.thumbnails().set(
             videoId=idVideo,
-            media_body=self.upload(image)
+            media_body=self.uploadThumbnails(image)
         )
-        response = request.execute()
-        return response
+        r = insert_request.execute()
+        return r
 
     def __del__(self):
         print(f"{self.__class__} FINISHED")

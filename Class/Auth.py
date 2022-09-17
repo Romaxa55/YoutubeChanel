@@ -40,7 +40,7 @@ class Auth:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = google_auth_oauthlib.InstalledAppFlow.from_client_secrets_file(
+                flow = InstalledAppFlow.from_client_secrets_file(
                     self.APP_TOKEN_FILE,
                     self.SCOPES
                 )
@@ -58,6 +58,9 @@ class Auth:
 
     def upload(self, file):
         return MediaFileUpload(file, chunksize=-1, resumable=True)
+
+    def uploadThumbnails(self, file):
+        return MediaFileUpload(file)
 
     def __del__(self):
         print(f"{self.__class__} FINISHED")

@@ -103,7 +103,7 @@ def main():
 
     y.getPlaylists()
     # upload video on youtube
-    id = y.YoutubeVideoUpload()
+    y.YoutubeVideoUpload()
 
 
 
