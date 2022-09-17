@@ -90,20 +90,20 @@ def main():
     # Create original sub type tuple
     subs = sub()
 
-    # Stage Create Subs GoogleTranslater
-    t = Translate(Lang_file, Video_file)
-    t.translateSub(subs)
-
-    # Stage Create Video
-    c = Converter()
-    c.createVideo()
-
-    # # Stage Auth YouTube
-    # y = Youtube()
+    # # Stage Create Subs GoogleTranslater
+    # t = Translate(Lang_file, Video_file)
+    # t.translateSub(subs)
     #
-    # y.getPlaylists()
-    # # upload video on youtube
-    # id = y.YoutubeVideoUpload()
+    # # Stage Create Video
+    # c = Converter()
+    # c.createVideo()
+
+    # Stage Auth YouTube
+    y = Youtube()
+
+    y.getPlaylists()
+    # upload video on youtube
+    id = y.YoutubeVideoUpload()
 
 
 

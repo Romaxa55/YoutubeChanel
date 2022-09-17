@@ -7,7 +7,6 @@ import ast
 import os.path
 
 
-
 class Youtube(Class.Auth.Auth, Class.Translate.Translate):
 
     def __init__(self):
@@ -108,11 +107,13 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         with open(self.Lang_file) as f:
             self.lang = ast.literal_eval(f.read())
         project = settings.config['Project']
-        #tested
+        # tested
         self.lang = {'georgian': 'ka'}
         for k, v in self.lang.items():
             file = f"{settings.BASEDIR}Video/{project}/" \
                    f"{project}_{v}.mov"
+            image = f"{settings.BASEDIR}Video/{project}/" \
+                    f"{project}_{v}.png"
             file_exists = os.path.exists(file)
             if file_exists:
                 # Init media file upload
@@ -132,7 +133,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                                    publicStatsViewable=True,
                                    madeForKids=False,
                                    selfDeclaredMadeForKids=False
-                                )
+                                   )
                 }
                 youtube = self.youtube()
                 insert_request = youtube.videos().insert(
@@ -142,7 +143,17 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 )
 
                 r = self.ResumableUpload(insert_request)
+                self.SetThumbnails(r['id'], image)
                 return r
+
+    def SetThumbnails(self, idVideo, image):
+        youtube = self.youtube()
+        request = youtube.thumbnails().set(
+            videoId=idVideo,
+            media_body=self.upload(image)
+        )
+        response = request.execute()
+        return response
 
     def __del__(self):
         print(f"{self.__class__} FINISHED")
