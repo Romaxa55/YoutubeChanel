@@ -96,32 +96,7 @@ class Converter(Class.Translate.Translate):
             ])
 
             final_clip.save_frame(thumbnail)
-
-            # image_clip = ImageClip(thumbnail)
-            # text_clip = TextClip(txt="\n".join(title.split()).upper(),
-            #                      size=(0.85 * image_clip.size[0], 0),
-            #                      font=font,
-            #                      color="white")
-            # text_clip = text_clip.set_position('center')
-            # im_width, im_height = text_clip.size
-            # color_clip = ColorClip(size=(int(im_width * 1.1), int(im_height * 1.3)),
-            #                        color=(0, 255, 255))
-            # color_clip = color_clip.set_opacity(.6)
-            # clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
-            # clip_to_overlay = clip_to_overlay.set_position('bottom')
-            # final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
-            # final_clip.save_frame(thumbnail)
-
-            #
-            # font = self.switch(langNow)
-            # print(f"Use font {font} for lang {langNow}")
-            #
-            # text_clip = TextClip(txt=title,
-            #                      fontsize=70,
-            #                      font=font,
-            #                      color="white",  # Font color
-            #                      bg_color="aqua")  # Background color
-            # text_clip.save_frame(thumbnail)
+            print(f"Create thumbnailm save to {thumbnail}")
 
     def RenderVideo(self, input):
         # Работаем с оригинальным файлом
