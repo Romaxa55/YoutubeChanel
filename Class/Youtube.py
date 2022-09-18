@@ -103,6 +103,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                           'publicStatsViewable': True,
                           'madeForKids': False,
                           'selfDeclaredMadeForKids': False}
+                # youtube = self.youtube()
                 request = self.youtube().videos().update(
                         part="snippet, status",
                         body={
@@ -117,7 +118,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 project = settings.config['Project']
                 image = f"{settings.BASEDIR}Video/{project}/" \
                         f"{project}_{LANG}.png"
-                print(self.SetThumbnails(ID, image))
+                # print(self.SetThumbnails(ID, image))
 
     def CreateWhiteList(self):
         self.Lang_file = settings.lang_file

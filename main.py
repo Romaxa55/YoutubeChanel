@@ -105,7 +105,7 @@ def main():
     #
     # Update video info
     videoIDs = settings.config['VideoId']
-    # print(y.GetVideoInfo('tlikR8wiunA'))
+    print(y.GetVideoInfo('tlikR8wiunA'))
     y.UpdateVideoInfo(videoIDs)
 
 
