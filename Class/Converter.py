@@ -7,6 +7,7 @@ from random import randrange
 
 from moviepy.editor import *
 from moviepy.video.tools.subtitles import SubtitlesClip
+from moviepy.video.fx.all import crop
 
 import Class.Translate
 import settings
@@ -46,27 +47,70 @@ class Converter(Class.Translate.Translate):
         thumbnail = input
         thumbnail = thumbnail.rsplit(".", 1)[0] + ".png"
 
-
         if not file_exists(thumbnail):
             # Use only original for thumbnail
             title = self.translate(settings.config['ThumbnailTitle'], langNow)
             font = self.switch(langNow)
             clip = VideoFileClip(self.originalVideoFile)
+            # clip_resized = clip.resize((1280, 720))
             clip.save_frame(thumbnail, t=randrange(int(clip.duration)))
-            image_clip = ImageClip(thumbnail)
-            text_clip = TextClip(txt="\n".join(title.split()).upper(),
-                                 size=(0.85 * image_clip.size[0], 0),
-                                 font=font,
-                                 color="white")
-            text_clip = text_clip.set_position('center')
-            im_width, im_height = text_clip.size
-            color_clip = ColorClip(size=(int(im_width * 1.1), int(im_height * 1.3)),
-                                   color=(0, 255, 255))
-            color_clip = color_clip.set_opacity(.6)
-            clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
-            clip_to_overlay = clip_to_overlay.set_position('bottom')
-            final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
+
+            # Add background
+            original_clip = ImageClip(thumbnail)
+            # im_width, im_height = image_clip.size
+            image_clip = original_clip.resize(height=720 * 1.5)
+
+            # Black background
+            background = ColorClip(size=(1280, 720),
+                                   color=(0, 0, 0))
+            background_set_opacity = background.set_opacity(.8)
+
+            # Add Left and Right backgroud image
+            (w, h) = clip.size
+            crop_clip = original_clip.resize(height=720 * 2.5)
+            crop_clip = crop(crop_clip, width=int(w * 0.4), height=int(h), x_center=w * 0.5, y_center=h * 0.5)
+
+            # Add text
+            text = TextClip(txt=title.upper(),
+                            size=[0.8505 * background.size[0], 0.1 * background.size[1]],
+                            font=font,
+                            color="white")
+
+            text = text.set_position('center')
+
+            # Add background color text
+            im_width, im_height = text.size
+            background_text = ColorClip(size=(int(im_width * 1.3), int(im_height * 1.5)), color=(0, 255, 255))
+            background_text = background_text.set_opacity(.5)
+            background_text = background_text.set_position('bottom')
+            # Merge Text with Background
+            text = CompositeVideoClip([background_text, text])
+
+            final_clip = CompositeVideoClip([
+                background,
+                crop_clip.set_position('left'),
+                crop_clip.set_position('right'),
+                background_set_opacity,
+                image_clip.set_position('center'),
+                text.set_position(('center', 0.85), relative=True)
+            ])
+
             final_clip.save_frame(thumbnail)
+
+            # image_clip = ImageClip(thumbnail)
+            # text_clip = TextClip(txt="\n".join(title.split()).upper(),
+            #                      size=(0.85 * image_clip.size[0], 0),
+            #                      font=font,
+            #                      color="white")
+            # text_clip = text_clip.set_position('center')
+            # im_width, im_height = text_clip.size
+            # color_clip = ColorClip(size=(int(im_width * 1.1), int(im_height * 1.3)),
+            #                        color=(0, 255, 255))
+            # color_clip = color_clip.set_opacity(.6)
+            # clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
+            # clip_to_overlay = clip_to_overlay.set_position('bottom')
+            # final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
+            # final_clip.save_frame(thumbnail)
 
             #
             # font = self.switch(langNow)

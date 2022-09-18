@@ -1,4 +1,6 @@
 import re
+
+import settings
 from Class.Translate import *
 from Class.Converter import *
 from Class.Youtube import *
@@ -100,11 +102,20 @@ def main():
 
     # Stage Auth YouTube
     y = Youtube()
+    #
+    # Update video info
+    videoIDs = settings.config['VideoId']
+    # print(y.GetVideoInfo('tlikR8wiunA'))
+    y.UpdateVideoInfo(videoIDs)
 
-    y.getPlaylists()
-    # upload video on youtube
-    y.YoutubeVideoUpload()
 
+    # y.getPlaylists()
+    # # upload video on youtube
+    # y.YoutubeVideoUpload()
+
+    # y.ListTranslatedTitle()
+
+    # y.ListTranslatedTitle()
 
 
 

@@ -16,7 +16,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         self.start_time = time.time()
         print(f"{self.__class__} STARTED")
 
-    def get_video_info(self, id, part='snippet'):
+    def GetVideoInfo(self, id, part='snippet, status'):
         request = self.youtube().videos().list(
             part=part,
             id=id
@@ -24,7 +24,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         response = request.execute()
         return response
 
-    def getPlaylists(self):
+    def GetPlaylists(self):
 
         request = self.youtube().playlists().list(
             part="snippet",
@@ -34,7 +34,7 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         response = request.execute()
         return response
 
-    def createPlaylists(self, args):
+    def CreatePlaylists(self, args):
         request = self.youtube().playlists().insert(
             part="snippet,status",
             body=args
@@ -62,22 +62,62 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
         return True
 
     # multiprocessing Delete method
-    def deletePlaylist(self, whitelist):
+    def DeletePlaylist(self, whitelist):
         blacklist = []
         for i in self.getPlaylists()['items']:
             if not (i['snippet']['title'] in whitelist):
                 blacklist.append(i['id'])
         # Use Multiprocessing
-        status = self.MultiProcessStart(self.deletePlaylistMP, blacklist)
+        status = self.MultiProcessStart(self.DeletePlaylistMP, blacklist)
         return status
 
     # Doing method delete Plst
-    def deletePlaylistMP(self, id_pls: str) -> str:
+    def DeletePlaylistMP(self, id_pls: str) -> str:
         request = self.youtube().playlists().delete(
             id=id_pls
         )
         response = request.execute()
         return response
+
+    def UpdateVideoInfo(self, videoID={}):
+        print(videoID)
+        for id in videoID:
+            for LANG, ID in id.items():
+                title = self.translate(settings.config['Title'], LANG)
+                description = self.translate(settings.config['Description'], LANG)
+                # newTags = []
+                print(f"Create New video from original text on {LANG}")
+                # for tag in settings.config['tags']:
+                #     newTags.append(self.translate(tag, LANG))
+                # print(newTags)
+                snippet = {"defaultLanguage": LANG,
+                           'defaultAudioLanguage': LANG,
+                           "categoryId": "22",
+                           "tags": settings.config['tags'],
+                           "title": title,
+                           "description": description
+                           }
+                status = {'privacyStatus': 'public',
+                          'license': 'youtube',
+                          'embeddable': True,
+                          'publicStatsViewable': True,
+                          'madeForKids': False,
+                          'selfDeclaredMadeForKids': False}
+                request = self.youtube().videos().update(
+                        part="snippet, status",
+                        body={
+                            "id": ID,
+                            "snippet": snippet,
+                            "status": status
+                        }
+                    )
+                response = request.execute()
+                print(response)
+
+                project = settings.config['Project']
+                image = f"{settings.BASEDIR}Video/{project}/" \
+                        f"{project}_{LANG}.png"
+                print(self.SetThumbnails(ID, image))
 
     def CreateWhiteList(self):
         self.Lang_file = settings.lang_file
@@ -102,6 +142,17 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 sleep(randrange(5))
 
         return None
+
+    def ListTranslatedTitle(self):
+        self.Lang_file = settings.lang_file
+        with open(self.Lang_file) as f:
+            self.lang = ast.literal_eval(f.read())
+        for k, v in self.lang.items():
+            title = self.translate(settings.config['Title'], v)
+            description = self.translate(settings.config['Description'], v)
+            print(f"Lang {k}:{v}")
+            print(f"{title}")
+            print(f"{description}")
 
     def YoutubeVideoUpload(self):
         self.Lang_file = settings.lang_file
@@ -141,19 +192,21 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                 description = self.translate(settings.config['Description'], v)
 
                 meta = {
-                    'snippet': dict(defaultLanguage=v,
-                                    # defaultAudioLanguage=v,
-                                    categoryId="22",
-                                    tags=title.split(","),
-                                    title=title,
-                                    description=description),
-                    "status": dict(privacyStatus="private",
-                                   license="youtube",
-                                   embeddable=True,
-                                   publicStatsViewable=True,
-                                   madeForKids=False,
-                                   selfDeclaredMadeForKids=False
-                                   )
+                    'snippet': dict(
+                        # defaultLanguage=v,
+                        # defaultAudioLanguage=v,
+                        categoryId="22",
+                        tags=title.split(","),
+                        title=title,
+                        description=description),
+                    "status": dict(
+                        privacyStatus="private",
+                        license="youtube",
+                        embeddable=True,
+                        publicStatsViewable=True,
+                        madeForKids=False,
+                        selfDeclaredMadeForKids=False
+                    )
                 }
                 youtube = self.youtube()
                 insert_request = youtube.videos().insert(
@@ -168,10 +221,9 @@ class Youtube(Class.Auth.Auth, Class.Translate.Translate):
                         status.append(file)
                         with open(status_file, 'w') as outfile:
                             yaml.dump(status, outfile, default_flow_style=False, allow_unicode=True)
+                            return True
 
     def SetThumbnails(self, idVideo, image):
-        print(idVideo)
-        print(image)
         youtube = self.youtube()
         insert_request = youtube.thumbnails().set(
             videoId=idVideo,
